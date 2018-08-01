@@ -7,8 +7,9 @@ LRU（Least recently used，最近最少使用）算法根据数据的历史访�
 
 ## 2. 实现
 lrucache实现是使用一个链表保存缓存数据，详细算法实现如下：
-
-![](images/lruschematic.png)
+<div align=center>
+<img src="images/lruschematic.png" />
+</div>
 
 1. 新数据插入到链表尾部；
 
@@ -35,7 +36,10 @@ O(1)-O(n）
 
 实现： 只有当数据的访问次数达到K次的时候，才将数据放入缓存。当需要淘汰数据时，LRU-K会淘汰第K次访问时间距当前时间最大的数据，详细算法实现如下：
 
-![](images/lru-k.png)
+<div align=center>
+<img src="images/lru-k.png" />
+</div>
+
 
 1. 数据第一次被访问，加入到左侧的访问历史列表；
 
