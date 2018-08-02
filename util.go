@@ -9,7 +9,7 @@ import (
 type MemoryItem struct {
 	key        string
 	val        interface{}
-	LastAccess int64
+	lastAccess int64
 	expired    time.Duration
 }
 

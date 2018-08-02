@@ -73,7 +73,7 @@ func (this *LruCache) Get(key string) interface{} {
 	defer this.Unlock()
 	if e, exist := this.keyIndex[key]; exist {
 		itm := e.Value.(*MemoryItem)
-		if (time.Now().Unix() - itm.LastAccess) > int64(itm.expired) {
+		if (time.Now().Unix() - itm.lastAccess) > int64(itm.expired) {
 			return nil
 		}
 		this.valueList.MoveToBack(e)
@@ -90,7 +90,7 @@ func (this *LruCache) GetMulti(keys []string) []interface{} {
 	for i, key := range keys {
 		if e, exist := this.keyIndex[key]; exist {
 			itm := e.Value.(*MemoryItem)
-			if (time.Now().Unix() - itm.LastAccess) > int64(itm.expired) {
+			if (time.Now().Unix() - itm.lastAccess) > int64(itm.expired) {
 				rtl[i] = itm.val
 				this.valueList.MoveToBack(e)
 				continue
@@ -107,7 +107,7 @@ func (this *LruCache) GetEx(key string) (interface{}, bool) {
 	defer this.Unlock()
 	if e, exist := this.keyIndex[key]; exist {
 		itm := e.Value.(*MemoryItem)
-		if (time.Now().Unix() - itm.LastAccess) > int64(itm.expired) {
+		if (time.Now().Unix() - itm.lastAccess) > int64(itm.expired) {
 			return nil, false
 		}
 		this.valueList.MoveToBack(e)
@@ -130,7 +130,7 @@ func (this *LruCache) Put(key string, val interface{}, expired time.Duration) {
 		this.curCacheSize -= itm.Size()
 		itm.val = val
 		itm.expired = expired
-		itm.LastAccess = time.Now().Unix()
+		itm.lastAccess = time.Now().Unix()
 		this.curCacheSize += itm.Size()
 	} else {
 		itm := &MemoryItem{key, val, time.Now().Unix(), expired}
@@ -164,9 +164,9 @@ func (this *LruCache) DelayDelete(key string, delay time.Duration) error {
 	defer this.Unlock()
 	if e, exist := this.keyIndex[key]; exist {
 		itm := e.Value.(*MemoryItem)
-		if (time.Now().Unix() - itm.LastAccess) <= int64(itm.expired) {
+		if (time.Now().Unix() - itm.lastAccess) <= int64(itm.expired) {
 			itm.expired = delay
-			itm.LastAccess = time.Now().Unix()
+			itm.lastAccess = time.Now().Unix()
 		}
 	} else {
 		return errors.New("key not exist")
@@ -181,7 +181,7 @@ func (this *LruCache) IsExist(key string) bool {
 	e, exist := this.keyIndex[key]
 	if exist {
 		itm := e.Value.(*MemoryItem)
-		exist = (time.Now().Unix() - itm.LastAccess) <= int64(itm.expired)
+		exist = (time.Now().Unix() - itm.lastAccess) <= int64(itm.expired)
 	}
 	return exist
 }
@@ -322,7 +322,7 @@ func (this *LruCache) shrinkCache() {
 				this.Lock()
 				if e, exist := this.keyIndex[key]; exist {
 					itm := e.Value.(*MemoryItem)
-					if (time.Now().Unix() - itm.LastAccess) > int64(itm.expired) {
+					if (time.Now().Unix() - itm.lastAccess) > int64(itm.expired) {
 						size = itm.Size()
 						this.curCacheSize -= size
 						delete(this.keyIndex, key)

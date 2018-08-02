@@ -15,7 +15,6 @@ type TestType struct {
 
 func (this *TestType) GetToken() string { return this.token }
 
-//第一种使用方式测试
 func TestCache1(t *testing.T) {
 	runtime.GOMAXPROCS(4)
 	cache := NewLruCache("test1", `{"low": 200,"high": 400}`)
