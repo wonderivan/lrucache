@@ -47,8 +47,15 @@ func NewLruCache(name string, config ...string) *LruCache {
 	cache.chCacheExit = make(chan bool)
 	cache.waitGroup.Add(1)
 	go cache.shrinkCache()
-	logger.Info("LruCache create ok. name:%s, low:%d(byte), high:%d(byte),interval:%d(s)",
-		cache.name, cache.low, cache.high, cache.interval)
+	logger.Info(`LruCache create with configure:
+    --------------------------
+    | name:"%s"          
+    | low:%dbyte=%.3fMb
+    | high:%dbyte=%.3fMb
+    | interval:%d(s)
+    --------------------------`,
+		cache.name, cache.low, float64(cache.low)/1024/1024,
+		cache.high, float64(cache.high)/1024/1024, cache.interval)
 	return cache
 }
 
@@ -59,10 +66,10 @@ func (this *LruCache) Destroy() {
 		this.Lock()
 		if this.chCacheExit != nil {
 			close(this.chCacheExit)
+			this.waitGroup.Wait()
 			this.chCacheExit = nil
 		}
 		this.Unlock()
-		this.waitGroup.Wait()
 	}
 	this = nil
 }
@@ -340,4 +347,9 @@ func (this *LruCache) shrinkCache() {
 			return
 		}
 	}
+}
+
+// 获取缓存名称
+func (this *LruCache) GetCacheName() string {
+	return this.name
 }
